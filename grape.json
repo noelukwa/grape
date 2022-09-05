@@ -1,0 +1,19 @@
+{
+  "dev": {
+    "watch": {
+      "exclude": [
+        "dist"
+      ],
+     "include": [
+            "src/**/*.js",
+            "src/**/*.html"
+       ]
+    },
+    "run": {
+        "args": [
+            "--port=8080"
+        ],
+        "command": "go run main.go"
+    }
+  }
+}

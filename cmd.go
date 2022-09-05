@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"log"
@@ -11,7 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var ()
+const (
+	// DefaultConfigPath is the default path to the config file
+	DefaultConfigPath = "grape.json"
+)
 
 var rootCmd = &cobra.Command{
 	Use: "grape",
@@ -48,13 +52,46 @@ var rootCmd = &cobra.Command{
 		}()
 
 		// Add a path.
-		err = transverse("/test", []string{".txt"}, watcher.Add)
+		err = transverse("/ignore", []string{".txt"}, watcher.Add)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal(errors.New("failed to add path"))
 		}
 
 		// Block main goroutine forever.
 		<-make(chan struct{})
+	},
+}
+
+var runCmd = &cobra.Command{
+	Use:  "run",
+	Long: `run is a command that runs the grape process manager`,
+	Run: func(cmd *cobra.Command, args []string) {
+
+		config, err := ConfigFromJson(cmd.Flag("config").Value.String())
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, namespace := range config.Namespaces {
+			fmt.Printf("namespace: %s\n", namespace.Tag)
+			fmt.Printf("%s watch exclude: %s\n", namespace.Tag, namespace.Watch.Exclude)
+			fmt.Printf("%s watch include: %s\n", namespace.Tag, namespace.Watch.Include)
+			fmt.Printf("%s command: %s\n", namespace.Tag, namespace.Runner.Command)
+
+		}
+
+		// ns := args[0]
+		// config, err := cmd.Flags().GetString("config")
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// configPath, err := filepath.Abs(config)
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+
+		// fmt.Printf("config file is %s and namespace is %s and the path is %s \n ", config, ns, configPath)
 	},
 }
 
@@ -96,6 +133,7 @@ func transverse(dir string, exts []string, fn func(string) error) error {
 	})
 }
 func cmd() *cobra.Command {
-
+	rootCmd.AddCommand(runCmd)
+	rootCmd.PersistentFlags().StringP("config", "c", DefaultConfigPath, "path to config file")
 	return rootCmd
 }
