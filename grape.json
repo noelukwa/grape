@@ -9,11 +9,7 @@
             "src/**/*.html"
        ]
     },
-    "run": {
-        "args": [
-            "--port=8080"
-        ],
-        "command": "go run main.go"
-    }
+    "run":  "echo 'hello world'"
+    
   }
 }

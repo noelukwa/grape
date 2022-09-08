@@ -13,21 +13,26 @@ type FWatcher struct {
 	Include []string `json:"include"`
 }
 
-type Runner struct {
-	Args    []string `json:"args"`
-	Command string   `json:"command"`
-}
-
 type Namespace struct {
 	Tag string
 
 	Watch FWatcher `json:"watch"`
 
-	Runner Runner `json:"run"`
+	Run string `json:"run"`
 }
 
 type Config struct {
 	Namespaces []Namespace
+}
+
+func (conf *Config) getNameSpace(tag string) *Namespace {
+	for _, ns := range conf.Namespaces {
+
+		if ns.Tag == tag {
+			return &ns
+		}
+	}
+	return nil
 }
 
 func ConfigFromJson(path string) (*Config, error) {
@@ -68,5 +73,8 @@ func ConfigFromJson(path string) (*Config, error) {
 	}
 
 	return &Config{Namespaces: namespaces}, nil
+}
 
+func ConfigFromFlags() (*Config, error) {
+	return nil, nil
 }
