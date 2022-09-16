@@ -46,9 +46,20 @@ var runCmd = &cobra.Command{
 	},
 }
 
+var initCmd = &cobra.Command{
+	Use:   "init",
+	Short: "use [init] to create a config file in the current directory.",
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := createConfigFile(); err != nil {
+			log.Fatal(err.Error())
+		}
+	},
+}
+
 func cmd() *cobra.Command {
 	rootCmd.AddCommand(runCmd)
 	rootCmd.AddCommand(onCmd)
+	rootCmd.AddCommand(initCmd)
 	onCmd.Flags().StringSliceP("ext", "e", []string{"*.go"}, "comma separated list of file extensions to watch [ default: .go ]")
 	onCmd.Flags().StringSliceP("exclude", "x", []string{"vendor"}, "comma separated list of directories to exclude from watching")
 	onCmd.Flags().StringP("run", "r", "", "command to run when a file is changed")

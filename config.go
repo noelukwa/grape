@@ -78,3 +78,26 @@ func ConfigFromJson(path string) (*Config, error) {
 func ConfigFromFlags() (*Config, error) {
 	return nil, nil
 }
+
+func createConfigFile() error {
+
+	var defaultConfig = []byte(`{
+		"dev": {
+		  "watch": {
+			"exclude": [
+			  "vendor"
+			],
+		   "include": [
+				  "*.go",
+			 ]
+		  },
+		  "run":  "go run ."
+		}
+	  }`)
+
+	//create a json file and write the contents of defaultConfig to it
+	if err := os.WriteFile("grape.json", defaultConfig, 0644); err != nil {
+		return err
+	}
+	return nil
+}
