@@ -13,23 +13,19 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-type cmdToExec struct {
+type commander struct {
 	cmd []string
 }
 
-func (c *cmdToExec) exec(ctx context.Context) {
-	cwd, _ := os.Getwd()
-
-	fmt.Printf("working dir %s \n", cwd)
+func (c *commander) exec(ctx context.Context) {
 
 	cmd := exec.CommandContext(ctx, c.cmd[0], c.cmd[1:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	// cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-
 	if err := cmd.Run(); err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println(startInfo())
 }
 
 func run(config *Config, namespace string) error {
@@ -41,13 +37,14 @@ func run(config *Config, namespace string) error {
 
 	ns := config.getNameSpace(namespace)
 
-	cmd := cmdToExec{
+	cmd := commander{
 		cmd: strings.Split(ns.Run, " "),
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	// Start listening for events.
+
 	go func() {
+		fmt.Println(startInfo())
 		for {
 			select {
 			case event, ok := <-watcher.Events:
@@ -55,6 +52,7 @@ func run(config *Config, namespace string) error {
 					return
 				}
 				if event.Op == fsnotify.Write || event.Op == fsnotify.Create {
+					fmt.Println("modified file:", event.Name)
 					cmd.exec(ctx)
 				}
 

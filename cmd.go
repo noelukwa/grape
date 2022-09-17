@@ -8,11 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	// DefaultConfigPath is the default path to the config file
-	DefaultConfigPath = "grape.json"
-)
-
 var onCmd = &cobra.Command{
 	Use:   "on",
 	Short: "use [on] to configure grape on the go without a config file.",
@@ -68,7 +63,9 @@ func cmd() *cobra.Command {
 }
 
 func main() {
+
 	if err := cmd().Execute(); err != nil {
 		os.Exit(1)
 	}
+
 }

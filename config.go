@@ -82,13 +82,13 @@ func ConfigFromFlags() (*Config, error) {
 func createConfigFile() error {
 
 	var defaultConfig = []byte(`{
-		"dev": {
-		  "watch": {
+	"dev": {
+		"watch": {
 			"exclude": [
 			  "vendor"
 			],
-		   "include": [
-				  "*.go",
+		"include": [
+				"*.go"
 			 ]
 		  },
 		  "run":  "go run ."
