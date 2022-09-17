@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"strings"
@@ -7,16 +7,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const (
-	// DefaultConfigPath is the default path to the config file
-	DefaultConfigPath = "grape.json"
-)
-
 var (
 	green = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
 )
 
-func startInfo() string {
+func Info() string {
 
 	strOut := strings.Builder{}
 

@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"encoding/json"
@@ -25,7 +25,7 @@ type Config struct {
 	Namespaces []Namespace
 }
 
-func (conf *Config) getNameSpace(tag string) *Namespace {
+func (conf *Config) GetNameSpace(tag string) *Namespace {
 	for _, ns := range conf.Namespaces {
 
 		if ns.Tag == tag {
@@ -35,7 +35,7 @@ func (conf *Config) getNameSpace(tag string) *Namespace {
 	return nil
 }
 
-func ConfigFromJson(path string) (*Config, error) {
+func FromJson(path string) (*Config, error) {
 	abs, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
@@ -75,11 +75,11 @@ func ConfigFromJson(path string) (*Config, error) {
 	return &Config{Namespaces: namespaces}, nil
 }
 
-func ConfigFromFlags() (*Config, error) {
+func FromFlags() (*Config, error) {
 	return nil, nil
 }
 
-func createConfigFile() error {
+func NewDefault() error {
 
 	var defaultConfig = []byte(`{
 	"dev": {
