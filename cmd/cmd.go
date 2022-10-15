@@ -44,8 +44,6 @@ var runCmd = &cobra.Command{
 		if err := app.Run(config, namespace); err != nil {
 			log.Fatal(err.Error())
 		}
-
-		fmt.Println("run terminated")
 	},
 }
 

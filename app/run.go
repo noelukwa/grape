@@ -1,7 +1,6 @@
 package app
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -85,7 +84,7 @@ func Run(config *config.Config, namespace string) error {
 
 	err = transverse(ns, watcher.Add)
 	if err != nil {
-		log.Fatal(errors.New("failed to add path"))
+		log.Fatal(err)
 	}
 
 	fmt.Println("grape: watching", ns.Watch.Include)
@@ -97,7 +96,6 @@ func Run(config *config.Config, namespace string) error {
 func transverse(ns *config.Namespace, fn func(string) error) error {
 
 	paths_to_watch := make(chan []string, 1)
-	errCh := make(chan error, 1)
 
 	go func(w *config.FWatcher) {
 		for _, path := range w.Include {
@@ -113,14 +111,10 @@ func transverse(ns *config.Namespace, fn func(string) error) error {
 	for paths := range paths_to_watch {
 		for _, path := range paths {
 			if err := fn(path); err != nil {
-				errCh <- err
+				return err
 			}
 		}
+	}
 
-		close(errCh)
-	}
-	if err := <-errCh; err != nil {
-		return err
-	}
 	return nil
 }
