@@ -1,13 +1,18 @@
-# 🍇 grape cli
+#🍇 grape cli
 
 Tiny CLI for running commands on file change. Inspired by [nodemon](https://github.com/remy/nodemon).
 
 
 ## Install 
+Download any of the binaries or :
 
+```bash 
+go get -u get github.com/noelukwa/grape
+```
+or 
 
 ```bash
-npm install -g grape-cli
+go install github.com/noelukwa/grape
 ```
 
 ## Usage
