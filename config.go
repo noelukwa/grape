@@ -75,8 +75,18 @@ func FromJson(path string) (*Config, error) {
 	return &Config{Namespaces: namespaces}, nil
 }
 
-func FromFlags() (*Config, error) {
-	return nil, nil
+func FromFlags(cmd string, include []string, exclude []string) (*Config, error) {
+	var ns Namespace
+	ns.Tag = "default"
+	ns.Run = cmd
+	ns.Watch = FWatcher{
+		Exclude: exclude,
+		Include: include,
+	}
+
+	return &Config{
+		Namespaces: []Namespace{ns},
+	}, nil
 }
 
 func NewDefault() error {

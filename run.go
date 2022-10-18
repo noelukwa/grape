@@ -39,7 +39,6 @@ func kill(cmd *exec.Cmd) {
 		syscall.Kill(-pgid, 15)
 	}
 	cmd.Wait()
-
 }
 
 func Run(config *Config, namespace string) error {
@@ -49,7 +48,7 @@ func Run(config *Config, namespace string) error {
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err.Error())
 	}
 	defer watcher.Close()
 
@@ -83,6 +82,7 @@ func Run(config *Config, namespace string) error {
 
 	go func() {
 		<-quit
+		fmt.Println(stopText())
 		kill(cmd)
 		exit <- struct{}{}
 	}()

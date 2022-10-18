@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -16,7 +15,25 @@ var onCmd = &cobra.Command{
 	Use:   "on",
 	Short: "use [on] to configure grape on the go without a config file.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("on called")
+		targets, _ := cmd.Flags().GetStringSlice("ext")
+		exclude, _ := cmd.Flags().GetStringSlice("exclude")
+		run, _ := cmd.Flags().GetString("run")
+		if run == "" {
+			fmt.Println(failText("run command is required"))
+			cmd.Help()
+		}
+
+		config, err := FromFlags(run, targets, exclude)
+		if err != nil {
+			fmt.Println(failText(err.Error()))
+			cmd.Help()
+		}
+
+		if err := Run(config, "default"); err != nil {
+			fmt.Println(failText(err.Error()))
+			cmd.Help()
+		}
+
 	},
 }
 
@@ -35,12 +52,14 @@ var runCmd = &cobra.Command{
 
 		config, err := FromJson(cmd.Flag("config").Value.String())
 		if err != nil {
-			log.Fatal(err.Error())
+			fmt.Println(failText(err.Error()))
+			cmd.Help()
 		}
 
 		namespace := args[0]
 		if err := Run(config, namespace); err != nil {
-			log.Fatal(err.Error())
+			fmt.Println(failText(err.Error()))
+			cmd.Help()
 		}
 	},
 }
@@ -50,7 +69,8 @@ var initCmd = &cobra.Command{
 	Short: "use [init] to create a config file in the current directory.",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := NewDefault(); err != nil {
-			log.Fatal(err.Error())
+			fmt.Println(failText(err.Error()))
+			cmd.Help()
 		}
 	},
 }
