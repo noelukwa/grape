@@ -1,11 +1,9 @@
-package cmd
+package main
 
 import (
 	"fmt"
 	"log"
 
-	"github.com/noelukwa/grape/app"
-	"github.com/noelukwa/grape/config"
 	"github.com/spf13/cobra"
 )
 
@@ -35,13 +33,13 @@ var runCmd = &cobra.Command{
 	Short: "use [run] to run grape with a config file and switch between namespaces.",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		config, err := config.FromJson(cmd.Flag("config").Value.String())
+		config, err := FromJson(cmd.Flag("config").Value.String())
 		if err != nil {
 			log.Fatal(err.Error())
 		}
 
 		namespace := args[0]
-		if err := app.Run(config, namespace); err != nil {
+		if err := Run(config, namespace); err != nil {
 			log.Fatal(err.Error())
 		}
 	},
@@ -51,7 +49,7 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "use [init] to create a config file in the current directory.",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := config.NewDefault(); err != nil {
+		if err := NewDefault(); err != nil {
 			log.Fatal(err.Error())
 		}
 	},

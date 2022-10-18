@@ -1,4 +1,4 @@
-package app
+package main
 
 import (
 	"fmt"
@@ -6,15 +6,13 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
-	"path/filepath"
 	"strings"
 	"syscall"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/noelukwa/grape/config"
 )
 
-func run(ns *config.Namespace) *exec.Cmd {
+func run(ns *Namespace) *exec.Cmd {
 
 	chunks := strings.Split(ns.Run, " ")
 
@@ -37,7 +35,7 @@ func kill(cmd *exec.Cmd) {
 
 }
 
-func Run(config *config.Config, namespace string) error {
+func Run(config *Config, namespace string) error {
 
 	quit := make(chan os.Signal, 1)
 	exit := make(chan struct{}, 1)
@@ -82,9 +80,8 @@ func Run(config *config.Config, namespace string) error {
 		exit <- struct{}{}
 	}()
 
-	err = transverse(ns, watcher.Add)
-	if err != nil {
-		log.Fatal(err)
+	for _, path := range ns.Watch.Include {
+		go walk(path, watcher.Add, ns.Watch.Exclude)
 	}
 
 	fmt.Println("grape: watching", ns.Watch.Include)
@@ -93,28 +90,7 @@ func Run(config *config.Config, namespace string) error {
 	return nil
 }
 
-func transverse(ns *config.Namespace, fn func(string) error) error {
-
-	paths_to_watch := make(chan []string, 1)
-
-	go func(w *config.FWatcher) {
-		for _, path := range w.Include {
-			matches, err := filepath.Glob(path)
-			if err != nil {
-				log.Fatal(err)
-			}
-			paths_to_watch <- matches
-		}
-		close(paths_to_watch)
-	}(&ns.Watch)
-
-	for paths := range paths_to_watch {
-		for _, path := range paths {
-			if err := fn(path); err != nil {
-				return err
-			}
-		}
-	}
+func walk(path string, fn func(string) error, ignore []string) error {
 
 	return nil
 }
