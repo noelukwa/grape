@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"os/exec"
@@ -10,6 +11,12 @@ import (
 	"syscall"
 
 	"github.com/fsnotify/fsnotify"
+)
+
+var (
+	RunNotice = `🍇 now watching for changes ✨`
+
+	StopNotice = `🍇 stopped watching for changes, cleaning up... ✨`
 )
 
 func run(ns *Namespace) *exec.Cmd {
@@ -22,7 +29,7 @@ func run(ns *Namespace) *exec.Cmd {
 	cmd.Stdout = os.Stdout
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Start()
-
+	fmt.Println(infoText(RunNotice))
 	return cmd
 }
 
@@ -58,7 +65,7 @@ func Run(config *Config, namespace string) error {
 					return
 				}
 				if event.Op == fsnotify.Write || event.Op == fsnotify.Create {
-					fmt.Println("±", event.Name)
+					fmt.Println(delText(event.Name))
 					kill(cmd)
 					cmd = run(ns)
 				}
@@ -80,17 +87,23 @@ func Run(config *Config, namespace string) error {
 		exit <- struct{}{}
 	}()
 
-	for _, path := range ns.Watch.Include {
-		go walk(path, watcher.Add, ns.Watch.Exclude)
+	for _, targets := range ns.Watch.Include {
+		go walk(targets, watcher.Add, ns.Watch.Exclude)
 	}
-
-	fmt.Println("grape: watching", ns.Watch.Include)
 	<-exit
 
 	return nil
 }
 
-func walk(path string, fn func(string) error, ignore []string) error {
+func walk(watchTarget string, fn func(string) error, ignore []string) {
+	pathsToWatch, err := fs.Glob(os.DirFS("."), watchTarget)
+	if err != nil && err != fs.ErrNotExist {
+		log.Fatal(err.Error())
+	}
 
-	return nil
+	for _, path := range pathsToWatch {
+		if err := fn(path); err != nil {
+			log.Fatal(err.Error())
+		}
+	}
 }
