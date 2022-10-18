@@ -1,4 +1,4 @@
-#🍇 grape cli
+# 🍇 grape cli
 
 Tiny CLI for running commands on file change. Inspired by [nodemon](https://github.com/remy/nodemon).
 
